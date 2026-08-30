@@ -1,5 +1,9 @@
-import { getDB } from "../../../lib/mongodb.js";
-import { comparePassword, generateToken } from "../../../lib/auth.js";
+import { getDB } from "../lib/mongodb.js";
+
+import {
+  comparePassword,
+  generateToken
+} from "../lib/auth.js";
 
 export default async (request) => {
   if (request.method !== "POST") {
@@ -15,14 +19,15 @@ export default async (request) => {
   }
 
   try {
-    const data = await request.json();
-
     const {
       registerNumber,
       password
-    } = data;
+    } = await request.json();
 
-    if (!registerNumber || !password) {
+    if (
+      !registerNumber ||
+      !password
+    ) {
       return Response.json(
         {
           success: false,
@@ -38,9 +43,11 @@ export default async (request) => {
     const db = await getDB();
 
     const user =
-      await db.collection("users").findOne({
-        registerNumber
-      });
+      await db
+        .collection("users")
+        .findOne({
+          registerNumber
+        });
 
     if (!user) {
       return Response.json(
@@ -55,13 +62,13 @@ export default async (request) => {
       );
     }
 
-    const passwordMatched =
+    const passwordMatches =
       await comparePassword(
         password,
         user.password
       );
 
-    if (!passwordMatched) {
+    if (!passwordMatches) {
       return Response.json(
         {
           success: false,
@@ -74,37 +81,55 @@ export default async (request) => {
       );
     }
 
-    const token = generateToken({
-      userId: user._id.toString(),
-      role: user.role
-    });
+    const token =
+      generateToken({
+        userId:
+          user._id.toString(),
+
+        role:
+          user.role
+      });
 
     return Response.json({
       success: true,
+
       message: "Login successful",
 
       token,
 
       user: {
-        id: user._id.toString(),
-        name: user.name,
-        registerNumber: user.registerNumber,
-        idNumber: user.idNumber,
-        phone: user.phone,
-        role: user.role,
-        department: user.department,
-        photoUrl: user.photoUrl || ""
+        id:
+          user._id.toString(),
+
+        name:
+          user.name,
+
+        registerNumber:
+          user.registerNumber,
+
+        idNumber:
+          user.idNumber,
+
+        phone:
+          user.phone,
+
+        department:
+          user.department,
+
+        role:
+          user.role
       }
     });
 
   } catch (error) {
-    console.error(error);
+    console.error("Login error:", error);
 
     return Response.json(
       {
         success: false,
         message:
-          error.message || "Login failed"
+          error.message ||
+          "Login failed"
       },
       {
         status: 500
