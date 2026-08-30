@@ -105,6 +105,12 @@ function Navbar() {
               >
                 Resources
               </Link>
+<Link
+  to="/books"
+  onClick={closeMenu}
+>
+  Books
+</Link>
 
               {user.role !== "admin" && (
                 <Link
