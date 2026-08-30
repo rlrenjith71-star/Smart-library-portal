@@ -1,6 +1,5 @@
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { getDatabase } from "../lib/mongodb.js";
+import { getDB } from "../../../lib/mongodb.js";
+import { comparePassword, generateToken } from "../../../lib/auth.js";
 
 export default async (request) => {
   if (request.method !== "POST") {
@@ -16,16 +15,19 @@ export default async (request) => {
   }
 
   try {
-    const {
-      loginId,
-      password
-    } = await request.json();
+    const data = await request.json();
 
-    if (!loginId || !password) {
+    const {
+      registerNumber,
+      password
+    } = data;
+
+    if (!registerNumber || !password) {
       return Response.json(
         {
           success: false,
-          message: "Login ID and password are required"
+          message:
+            "Register Number and password are required"
         },
         {
           status: 400
@@ -33,23 +35,19 @@ export default async (request) => {
       );
     }
 
-    const db = await getDatabase();
+    const db = await getDB();
 
-    const user = await db
-      .collection("users")
-      .findOne({
-        $or: [
-          { regNo: loginId },
-          { idNumber: loginId },
-          { phone: loginId }
-        ]
+    const user =
+      await db.collection("users").findOne({
+        registerNumber
       });
 
     if (!user) {
       return Response.json(
         {
           success: false,
-          message: "Invalid login details"
+          message:
+            "Invalid Register Number or password"
         },
         {
           status: 401
@@ -57,30 +55,18 @@ export default async (request) => {
       );
     }
 
-    if (!user.isVerified) {
-      return Response.json(
-        {
-          success: false,
-          message:
-            "Please verify your phone number using OTP first"
-        },
-        {
-          status: 403
-        }
-      );
-    }
-
-    const passwordCorrect =
-      await bcrypt.compare(
+    const passwordMatched =
+      await comparePassword(
         password,
         user.password
       );
 
-    if (!passwordCorrect) {
+    if (!passwordMatched) {
       return Response.json(
         {
           success: false,
-          message: "Invalid login details"
+          message:
+            "Invalid Register Number or password"
         },
         {
           status: 401
@@ -88,20 +74,13 @@ export default async (request) => {
       );
     }
 
-    const token = jwt.sign(
-      {
-        userId: user._id.toString(),
-        role: user.role
-      },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d"
-      }
-    );
+    const token = generateToken({
+      userId: user._id.toString(),
+      role: user.role
+    });
 
     return Response.json({
       success: true,
-
       message: "Login successful",
 
       token,
@@ -109,20 +88,17 @@ export default async (request) => {
       user: {
         id: user._id.toString(),
         name: user.name,
-        regNo: user.regNo,
+        registerNumber: user.registerNumber,
         idNumber: user.idNumber,
+        phone: user.phone,
         role: user.role,
         department: user.department,
-        phone: user.phone,
         photoUrl: user.photoUrl || ""
       }
     });
 
   } catch (error) {
-    console.error(
-      "Login error:",
-      error
-    );
+    console.error(error);
 
     return Response.json(
       {

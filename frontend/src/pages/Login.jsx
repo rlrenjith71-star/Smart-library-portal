@@ -1,112 +1,138 @@
 import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
 import api from "../services/api";
-import { useAuth } from "../context/AuthContext";
+import { useNavigate, Link } from "react-router-dom";
 
 export default function Login() {
   const navigate = useNavigate();
-    const { login } = useAuth();
 
-      const [loginId, setLoginId] = useState("");
-        const [password, setPassword] = useState("");
+  const [registerNumber, setRegisterNumber] =
+    useState("");
 
-          const [loading, setLoading] = useState(false);
-            const [message, setMessage] = useState("");
+  const [password, setPassword] =
+    useState("");
 
-              const handleLogin = async (e) => {
-                  e.preventDefault();
+  const [message, setMessage] =
+    useState("");
 
-                      setLoading(true);
-                          setMessage("");
+  const [loading, setLoading] =
+    useState(false);
 
-                              try {
-                                    const response = await api.post(
-                                            "/auth/login",
-                                                    {
-                                                              loginId,
-                                                                        password
-                                                                                }
-                                                                                      );
+  const handleLogin = async (event) => {
+    event.preventDefault();
 
-                                                                                            const data = response.data;
+    setLoading(true);
+    setMessage("");
 
-                                                                                                  login(data.token, data.user);
+    try {
+      const response = await api.post(
+        "/auth/login",
+        {
+          registerNumber,
+          password
+        }
+      );
 
-                                                                                                        navigate("/dashboard");
+      const data = response.data;
 
-                                                                                                            } catch (error) {
-                                                                                                                  setMessage(
-                                                                                                                          error.response?.data?.message ||
-                                                                                                                                  "Login failed"
-                                                                                                                                        );
-                                                                                                                                            } finally {
-                                                                                                                                                  setLoading(false);
-                                                                                                                                                      }
-                                                                                                                                                        };
+      if (!data.success) {
+        setMessage(
+          data.message || "Login failed"
+        );
+        return;
+      }
 
-                                                                                                                                                          return (
-                                                                                                                                                              <div className="auth-page">
+      if (data.token) {
+        localStorage.setItem(
+          "token",
+          data.token
+        );
+      }
 
-                                                                                                                                                                    <form
-                                                                                                                                                                            className="auth-card"
-                                                                                                                                                                                    onSubmit={handleLogin}
-                                                                                                                                                                                          >
+      if (data.user) {
+        localStorage.setItem(
+          "user",
+          JSON.stringify(data.user)
+        );
+      }
 
-                                                                                                                                                                                                  <h2>Welcome Back</h2>
+      setMessage("Login successful");
 
-                                                                                                                                                                                                          <p>
-                                                                                                                                                                                                                    Login to your Smart Library account
-                                                                                                                                                                                                                            </p>
+      setTimeout(() => {
+        navigate("/dashboard");
+      }, 800);
 
-                                                                                                                                                                                                                                    {message && (
-                                                                                                                                                                                                                                              <div className="error-message">
-                                                                                                                                                                                                                                                          {message}
-                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                            )}
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message ||
+        "Invalid Register Number or password"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                                                                                                                                                                                                                                                                                    <label>
-                                                                                                                                                                                                                                                                                              Register Number / ID / Phone
-                                                                                                                                                                                                                                                                                                      </label>
+  return (
+    <div className="auth-page">
+      <form
+        className="auth-card"
+        onSubmit={handleLogin}
+      >
+        <h2>Welcome Back</h2>
 
-                                                                                                                                                                                                                                                                                                              <input
-                                                                                                                                                                                                                                                                                                                        type="text"
-                                                                                                                                                                                                                                                                                                                                  value={loginId}
-                                                                                                                                                                                                                                                                                                                                            onChange={(e) =>
-                                                                                                                                                                                                                                                                                                                                                        setLoginId(e.target.value)
-                                                                                                                                                                                                                                                                                                                                                                  }
-                                                                                                                                                                                                                                                                                                                                                                            required
-                                                                                                                                                                                                                                                                                                                                                                                    />
+        <p>
+          Login to Smart Library Portal
+        </p>
 
-                                                                                                                                                                                                                                                                                                                                                                                            <label>Password</label>
+        {message && (
+          <div className="info-message">
+            {message}
+          </div>
+        )}
 
-                                                                                                                                                                                                                                                                                                                                                                                                    <input
-                                                                                                                                                                                                                                                                                                                                                                                                              type="password"
-                                                                                                                                                                                                                                                                                                                                                                                                                        value={password}
-                                                                                                                                                                                                                                                                                                                                                                                                                                  onChange={(e) =>
-                                                                                                                                                                                                                                                                                                                                                                                                                                              setPassword(e.target.value)
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                  required
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          />
+        <label>Register Number</label>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <button
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            type="submit"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      className="primary-btn full-btn"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                disabled={loading}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        >
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  {loading
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              ? "Logging in..."
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          : "Login"}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </button>
+        <input
+          type="text"
+          value={registerNumber}
+          onChange={(event) =>
+            setRegisterNumber(
+              event.target.value
+            )
+          }
+          required
+        />
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <p className="auth-footer">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Don't have an account?{" "}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <Link to="/register">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Register here
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </Link>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </p>
+        <label>Password</label>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </form>
+        <input
+          type="password"
+          value={password}
+          onChange={(event) =>
+            setPassword(
+              event.target.value
+            )
+          }
+          required
+        />
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+        <button
+          type="submit"
+          className="primary-btn full-btn"
+          disabled={loading}
+        >
+          {loading
+            ? "Logging in..."
+            : "Login"}
+        </button>
+
+        <p className="auth-footer">
+          Don't have an account?{" "}
+
+          <Link to="/register">
+            Register
+          </Link>
+        </p>
+      </form>
+    </div>
+  );
+}

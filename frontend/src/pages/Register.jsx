@@ -18,7 +18,7 @@ export default function Register() {
 
   const [form, setForm] = useState({
     name: "",
-    regNo: "",
+    registerNumber: "",
     idNumber: "",
     phone: "+91",
     password: "",
@@ -31,14 +31,14 @@ export default function Register() {
   const [loading, setLoading] = useState(false);
 
   const updateField = (field, value) => {
-    setForm({
-      ...form,
+    setForm((previous) => ({
+      ...previous,
       [field]: value
-    });
+    }));
   };
 
-  const handleRegister = async (e) => {
-    e.preventDefault();
+  const handleRegister = async (event) => {
+    event.preventDefault();
 
     if (form.password !== form.confirmPassword) {
       setMessage("Passwords do not match");
@@ -49,20 +49,19 @@ export default function Register() {
     setMessage("");
 
     try {
-      // Send only the fields required by the backend
       const response = await api.post("/auth/register", {
         name: form.name,
-        regNo: form.regNo,
+        registerNumber: form.registerNumber,
         idNumber: form.idNumber,
         phone: form.phone,
         password: form.password,
-        department: form.department,
-        role: form.role
+        role: form.role,
+        department: form.department
       });
 
       setMessage(
         response.data.message ||
-        "Registration successful"
+        "Registration completed successfully"
       );
 
       setTimeout(() => {
@@ -81,17 +80,13 @@ export default function Register() {
 
   return (
     <div className="auth-page">
-
       <form
         className="auth-card register-card"
         onSubmit={handleRegister}
       >
-
         <h2>Create Account</h2>
 
-        <p>
-          Register for the Smart Library Portal
-        </p>
+        <p>Register for the Smart Library Portal</p>
 
         {message && (
           <div className="info-message">
@@ -100,7 +95,6 @@ export default function Register() {
         )}
 
         <label>Full Name</label>
-
         <input
           value={form.name}
           onChange={(e) =>
@@ -110,17 +104,18 @@ export default function Register() {
         />
 
         <label>Register Number</label>
-
         <input
-          value={form.regNo}
+          value={form.registerNumber}
           onChange={(e) =>
-            updateField("regNo", e.target.value)
+            updateField(
+              "registerNumber",
+              e.target.value
+            )
           }
           required
         />
 
         <label>College ID Number</label>
-
         <input
           value={form.idNumber}
           onChange={(e) =>
@@ -130,28 +125,24 @@ export default function Register() {
         />
 
         <label>User Type</label>
-
         <select
           value={form.role}
           onChange={(e) =>
             updateField("role", e.target.value)
           }
         >
-          <option value="student">
-            Student
-          </option>
-
-          <option value="staff">
-            Staff
-          </option>
+          <option value="student">Student</option>
+          <option value="staff">Staff</option>
         </select>
 
         <label>Department</label>
-
         <select
           value={form.department}
           onChange={(e) =>
-            updateField("department", e.target.value)
+            updateField(
+              "department",
+              e.target.value
+            )
           }
           required
         >
@@ -170,7 +161,6 @@ export default function Register() {
         </select>
 
         <label>Phone Number</label>
-
         <input
           value={form.phone}
           onChange={(e) =>
@@ -180,18 +170,19 @@ export default function Register() {
         />
 
         <label>Password</label>
-
         <input
           type="password"
           value={form.password}
           onChange={(e) =>
-            updateField("password", e.target.value)
+            updateField(
+              "password",
+              e.target.value
+            )
           }
           required
         />
 
         <label>Confirm Password</label>
-
         <input
           type="password"
           value={form.confirmPassword}
@@ -216,14 +207,11 @@ export default function Register() {
 
         <p className="auth-footer">
           Already registered?{" "}
-
           <Link to="/login">
             Login
           </Link>
         </p>
-
       </form>
-
     </div>
   );
 }

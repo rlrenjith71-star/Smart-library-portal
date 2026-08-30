@@ -17,7 +17,7 @@ export default async (request) => {
 
     const {
       name,
-      registerNo,
+      registerNumber,
       idNumber,
       phone,
       password,
@@ -29,7 +29,7 @@ export default async (request) => {
 
     if (
       !name ||
-      !registerNo ||
+      !registerNumber ||
       !idNumber ||
       !phone ||
       !password ||
@@ -71,27 +71,19 @@ export default async (request) => {
 
     const user = {
       name,
-      registerNo,
+      registerNumber,
       idNumber,
       phone,
       password: hashedPassword,
-
       role: role || "student",
-
       department,
-
       photoUrl: photoUrl || "",
-
       bonafideUrl: bonafideUrl || "",
-
-      isPhoneVerified: true,
-
       createdAt: new Date()
     };
 
-    const result = await db
-      .collection("users")
-      .insertOne(user);
+    const result =
+      await db.collection("users").insertOne(user);
 
     return Response.json({
       success: true,
