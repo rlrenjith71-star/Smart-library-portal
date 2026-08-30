@@ -1,104 +1,94 @@
-import {
-    BrowserRouter,
-      Routes,
-        Route
-        } from "react-router-dom";
+import { Routes, Route } from "react-router-dom";
 
-        import { AuthProvider } from "./context/AuthContext";
+import Home from "./pages/Home";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import Dashboard from "./pages/Dashboard";
+import Resources from "./pages/Resources";
+import BorrowRequests from "./pages/BorrowRequests";
+import Profile from "./pages/Profile";
+import AdminDashboard from "./pages/AdminDashboard";
 
-        import Navbar from "./components/Navbar";
+import Navbar from "./components/Navbar";
+import Footer from "./components/Footer";
+import ProtectedRoute from "./components/ProtectedRoute";
 
-        import Home from "./pages/Home";
-        import Login from "./pages/Login";
-        import Register from "./pages/Register";
-        import Dashboard from "./pages/Dashboard";
-        import Departments from "./pages/Departments";
-        import Books from "./pages/Books";
-        import Resources from "./pages/Resources";
-        import MyBooks from "./pages/MyBooks";
-        import RequestBook from "./pages/RequestBook";
-        import LibraryVisit from "./pages/LibraryVisit";
-        import AdminDashboard from "./pages/AdminDashboard";
-        import AddBook from "./pages/AddBook";
-        import ManageRequests from "./pages/ManageRequests";
+function App() {
+  return (
+    <div className="app-container">
 
-        export default function App() {
-          return (
-              <BrowserRouter>
+      <Navbar />
 
-                    <AuthProvider>
+      <main className="main-content">
+        <Routes>
 
-                            <Navbar />
+          <Route
+            path="/"
+            element={<Home />}
+          />
 
-                                    <main>
-                                              <Routes>
-                                                <Route
-                                                  path="/admin"
-                                                    element={<AdminDashboard />}
-                                                    />
+          <Route
+            path="/register"
+            element={<Register />}
+          />
 
-                                                    <Route
-                                                      path="/admin/add-book"
-                                                        element={<AddBook />}
-                                                        />
+          <Route
+            path="/login"
+            element={<Login />}
+          />
 
-                                                        <Route
-                                                          path="/admin/requests"
-                                                            element={<ManageRequests />}
-                                                            />
-                                              <Route
-                                                path="/library-visit"
-                                                  element={<LibraryVisit />}
-                                                  />
-                                                <Route
-                                                  path="/my-books"
-                                                    element={<MyBooks />}
-                                                    />
+          <Route
+            path="/dashboard"
+            element={
+              <ProtectedRoute>
+                <Dashboard />
+              </ProtectedRoute>
+            }
+          />
 
-                                                    <Route
-                                                      path="/request-book"
-                                                        element={<RequestBook />}
-                                                        />
-                                                <Route
-                                                  path="/departments"
-                                                    element={<Departments />}
-                                                    />
+          <Route
+            path="/resources"
+            element={
+              <ProtectedRoute>
+                <Resources />
+              </ProtectedRoute>
+            }
+          />
 
-                                                    <Route
-                                                      path="/books"
-                                                        element={<Books />}
-                                                        />
+          <Route
+            path="/borrow-requests"
+            element={
+              <ProtectedRoute>
+                <BorrowRequests />
+              </ProtectedRoute>
+            }
+          />
 
-                                                        <Route
-                                                          path="/resources"
-                                                            element={<Resources />}
-                                                            />
+          <Route
+            path="/profile"
+            element={
+              <ProtectedRoute>
+                <Profile />
+              </ProtectedRoute>
+            }
+          />
 
-                                                          <Route
-                                                                        path="/"
-                                                                                      element={<Home />}
-                                                                                                  />
+          <Route
+            path="/admin"
+            element={
+              <ProtectedRoute adminOnly>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-                                                                                                              <Route
-                                                                                                                            path="/login"
-                                                                                                                                          element={<Login />}
-                                                                                                                                                      />
+        </Routes>
+      </main>
 
-                                                                                                                                                                  <Route
-                                                                                                                                                                                path="/register"
-                                                                                                                                                                                              element={<Register />}
-                                                                                                                                                                                                          />
+      <Footer />
 
-                                                                                                                                                                                                                      <Route
-                                                                                                                                                                                                                                    path="/dashboard"
-                                                                                                                                                                                                                                                  element={<Dashboard />}
-                                                                                                                                                                                                                                                              />
+    </div>
+  );
+}
 
-                                                                                                                                                                                                                                                                        </Routes>
-                                                                                                                                                                                                                                                                                </main>
-
-                                                                                                                                                                                                                                                                                      </AuthProvider>
-
-                                                                                                                                                                                                                                                                                          </BrowserRouter>
-                                                                                                                                                                                                                                                                                            );
-                                                                                                                                                                                                                                                                                            }
+export default App;
