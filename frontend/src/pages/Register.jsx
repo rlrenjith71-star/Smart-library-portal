@@ -18,7 +18,7 @@ export default function Register() {
 
   const [form, setForm] = useState({
     name: "",
-    registerNumber: "",
+    regNo: "",
     idNumber: "",
     phone: "+91",
     password: "",
@@ -27,11 +27,8 @@ export default function Register() {
     department: ""
   });
 
-  const [message, setMessage] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(false);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const updateField = (field, value) => {
     setForm({
@@ -43,14 +40,8 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
 
-    if (
-      form.password !==
-      form.confirmPassword
-    ) {
-      setMessage(
-        "Passwords do not match"
-      );
-
+    if (form.password !== form.confirmPassword) {
+      setMessage("Passwords do not match");
       return;
     }
 
@@ -58,8 +49,16 @@ export default function Register() {
     setMessage("");
 
     try {
-      const response =
-        await api.post("/auth/register", form);
+      // Send only the fields required by the backend
+      const response = await api.post("/auth/register", {
+        name: form.name,
+        regNo: form.regNo,
+        idNumber: form.idNumber,
+        phone: form.phone,
+        password: form.password,
+        department: form.department,
+        role: form.role
+      });
 
       setMessage(
         response.data.message ||
@@ -105,10 +104,7 @@ export default function Register() {
         <input
           value={form.name}
           onChange={(e) =>
-            updateField(
-              "name",
-              e.target.value
-            )
+            updateField("name", e.target.value)
           }
           required
         />
@@ -116,12 +112,9 @@ export default function Register() {
         <label>Register Number</label>
 
         <input
-          value={form.registerNumber}
+          value={form.regNo}
           onChange={(e) =>
-            updateField(
-              "registerNumber",
-              e.target.value
-            )
+            updateField("regNo", e.target.value)
           }
           required
         />
@@ -131,10 +124,7 @@ export default function Register() {
         <input
           value={form.idNumber}
           onChange={(e) =>
-            updateField(
-              "idNumber",
-              e.target.value
-            )
+            updateField("idNumber", e.target.value)
           }
           required
         />
@@ -144,10 +134,7 @@ export default function Register() {
         <select
           value={form.role}
           onChange={(e) =>
-            updateField(
-              "role",
-              e.target.value
-            )
+            updateField("role", e.target.value)
           }
         >
           <option value="student">
@@ -164,10 +151,7 @@ export default function Register() {
         <select
           value={form.department}
           onChange={(e) =>
-            updateField(
-              "department",
-              e.target.value
-            )
+            updateField("department", e.target.value)
           }
           required
         >
@@ -190,10 +174,7 @@ export default function Register() {
         <input
           value={form.phone}
           onChange={(e) =>
-            updateField(
-              "phone",
-              e.target.value
-            )
+            updateField("phone", e.target.value)
           }
           required
         />
@@ -204,10 +185,7 @@ export default function Register() {
           type="password"
           value={form.password}
           onChange={(e) =>
-            updateField(
-              "password",
-              e.target.value
-            )
+            updateField("password", e.target.value)
           }
           required
         />

@@ -3,119 +3,112 @@ import { hashPassword } from "../../../lib/auth.js";
 
 export default async (request) => {
   if (request.method !== "POST") {
+    return Response.json(
+      {
+        success: false,
+        message: "Method not allowed"
+      },
+      { status: 405 }
+    );
+  }
+
+  try {
+    const data = await request.json();
+
+    const {
+      name,
+      registerNo,
+      idNumber,
+      phone,
+      password,
+      role,
+      department,
+      photoUrl,
+      bonafideUrl
+    } = data;
+
+    if (
+      !name ||
+      !registerNo ||
+      !idNumber ||
+      !phone ||
+      !password ||
+      !department
+    ) {
       return Response.json(
-            { success: false, message: "Method not allowed" },
-                  { status: 405 }
-                      );
-                        }
+        {
+          success: false,
+          message: "Please fill all required fields"
+        },
+        { status: 400 }
+      );
+    }
 
-                          try {
-                              const data = await request.json();
+    const db = await getDB();
 
-                                  const {
-                                        name,
-                                              registerNumber,
-                                                    idNumber,
-                                                          phone,
-                                                                password,
-                                                                      role,
-                                                                            department,
-                                                                                  photoUrl,
-                                                                                        bonafideUrl,
-                                                                                              phoneVerified
-                                                                                                  } = data;
+    const existingUser =
+      await db.collection("users").findOne({
+        $or: [
+          { registerNumber },
+          { idNumber },
+          { phone }
+        ]
+      });
 
-                                                                                                      if (
-                                                                                                            !name ||
-                                                                                                                  !registerNumber ||
-                                                                                                                        !idNumber ||
-                                                                                                                              !phone ||
-                                                                                                                                    !password ||
-                                                                                                                                          !department
-                                                                                                                                              ) {
-                                                                                                                                                    return Response.json(
-                                                                                                                                                            {
-                                                                                                                                                                      success: false,
-                                                                                                                                                                                message: "Please fill all required fields"
-                                                                                                                                                                                        },
-                                                                                                                                                                                                { status: 400 }
-                                                                                                                                                                                                      );
-                                                                                                                                                                                                          }
+    if (existingUser) {
+      return Response.json(
+        {
+          success: false,
+          message:
+            "A user already exists with this Register Number, ID or phone number"
+        },
+        { status: 409 }
+      );
+    }
 
-                                                                                                                                                                                                              if (!phoneVerified) {
-                                                                                                                                                                                                                    return Response.json(
-                                                                                                                                                                                                                            {
-                                                                                                                                                                                                                                      success: false,
-                                                                                                                                                                                                                                                message: "Please verify your phone number first"
-                                                                                                                                                                                                                                                        },
-                                                                                                                                                                                                                                                                { status: 400 }
-                                                                                                                                                                                                                                                                      );
-                                                                                                                                                                                                                                                                          }
+    const hashedPassword =
+      await hashPassword(password);
 
-                                                                                                                                                                                                                                                                              const db = await getDB();
+    const user = {
+      name,
+      registerNo,
+      idNumber,
+      phone,
+      password: hashedPassword,
 
-                                                                                                                                                                                                                                                                                  const existingUser = await db.collection("users").findOne({
-                                                                                                                                                                                                                                                                                        $or: [
-                                                                                                                                                                                                                                                                                                { registerNumber },
-                                                                                                                                                                                                                                                                                                        { idNumber },
-                                                                                                                                                                                                                                                                                                                { phone }
-                                                                                                                                                                                                                                                                                                                      ]
-                                                                                                                                                                                                                                                                                                                          });
+      role: role || "student",
 
-                                                                                                                                                                                                                                                                                                                              if (existingUser) {
-                                                                                                                                                                                                                                                                                                                                    return Response.json(
-                                                                                                                                                                                                                                                                                                                                            {
-                                                                                                                                                                                                                                                                                                                                                      success: false,
-                                                                                                                                                                                                                                                                                                                                                                message:
-                                                                                                                                                                                                                                                                                                                                                                            "A user already exists with this Register Number, ID or phone number"
-                                                                                                                                                                                                                                                                                                                                                                                    },
-                                                                                                                                                                                                                                                                                                                                                                                            { status: 409 }
-                                                                                                                                                                                                                                                                                                                                                                                                  );
-                                                                                                                                                                                                                                                                                                                                                                                                      }
+      department,
 
-                                                                                                                                                                                                                                                                                                                                                                                                          const hashedPassword = await hashPassword(password);
+      photoUrl: photoUrl || "",
 
-                                                                                                                                                                                                                                                                                                                                                                                                              const user = {
-                                                                                                                                                                                                                                                                                                                                                                                                                    name,
-                                                                                                                                                                                                                                                                                                                                                                                                                          registerNumber,
-                                                                                                                                                                                                                                                                                                                                                                                                                                idNumber,
-                                                                                                                                                                                                                                                                                                                                                                                                                                      phone,
-                                                                                                                                                                                                                                                                                                                                                                                                                                            password: hashedPassword,
+      bonafideUrl: bonafideUrl || "",
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                  role: role || "student",
+      isPhoneVerified: true,
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                        department,
+      createdAt: new Date()
+    };
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                              photoUrl: photoUrl || "",
+    const result = await db
+      .collection("users")
+      .insertOne(user);
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                    bonafideUrl: bonafideUrl || "",
+    return Response.json({
+      success: true,
+      message: "Registration completed successfully",
+      userId: result.insertedId.toString()
+    });
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          isPhoneVerified: true,
+  } catch (error) {
+    console.error(error);
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                createdAt: new Date()
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    };
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        const result = await db
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              .collection("users")
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    .insertOne(user);
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        return Response.json({
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              success: true,
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    message: "Registration completed successfully",
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          userId: result.insertedId.toString()
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              });
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                } catch (error) {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    console.error(error);
-
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        return Response.json(
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      success: false,
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              message: error.message || "Registration failed"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    },
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          { status: 500 }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                }
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                };
+    return Response.json(
+      {
+        success: false,
+        message:
+          error.message || "Registration failed"
+      },
+      { status: 500 }
+    );
+  }
+};
