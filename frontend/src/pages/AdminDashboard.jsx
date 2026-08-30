@@ -1,71 +1,153 @@
 import { useEffect, useState } from "react";
 import api from "../services/api";
 
-export default function AdminDashboard() {
-  const [stats, setStats] = useState({
-      totalBooks: 0,
-          totalStudents: 0,
-              borrowedBooks: 0,
-                  pendingRequests: 0
-                    });
+function AdminDashboard() {
+  const [requests, setRequests] = useState([]);
+  const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(true);
 
-                      const [loading, setLoading] = useState(true);
+  useEffect(() => {
+    loadRequests();
+  }, []);
 
-                        useEffect(() => {
-                            async function fetchStats() {
-                                  try {
-                                          const response = await api.get("/admin/stats");
+  const loadRequests = async () => {
+    try {
+      setLoading(true);
 
-                                                  setStats(response.data.stats || stats);
-                                                        } catch (error) {
-                                                                console.error("Unable to load admin statistics:", error);
-                                                                      } finally {
-                                                                              setLoading(false);
-                                                                                    }
-                                                                                        }
+      const response = await api.get(
+        "/admin-requests"
+      );
 
-                                                                                            fetchStats();
-                                                                                              }, []);
+      setRequests(
+        response.data.requests || []
+      );
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message ||
+        "Unable to load requests."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                                                                                                return (
-                                                                                                    <div className="page-container">
+  const updateRequest = async (
+    requestId,
+    status
+  ) => {
+    try {
+      const response = await api.post(
+        "/update-request",
+        {
+          requestId,
+          status
+        }
+      );
 
-                                                                                                          <h1 className="page-title">
-                                                                                                                  Librarian Dashboard
-                                                                                                                        </h1>
+      setMessage(response.data.message);
 
-                                                                                                                              {loading ? (
-                                                                                                                                      <p>Loading dashboard...</p>
-                                                                                                                                            ) : (
-                                                                                                                                                    <div className="dashboard-grid">
+      loadRequests();
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message ||
+        "Unable to update request."
+      );
+    }
+  };
 
-                                                                                                                                                              <div className="dashboard-card">
-                                                                                                                                                                          📚
-                                                                                                                                                                                      <h3>{stats.totalBooks}</h3>
-                                                                                                                                                                                                  <p>Total Books</p>
-                                                                                                                                                                                                            </div>
+  return (
+    <div className="page-container">
 
-                                                                                                                                                                                                                      <div className="dashboard-card">
-                                                                                                                                                                                                                                  👨‍🎓
-                                                                                                                                                                                                                                              <h3>{stats.totalStudents}</h3>
-                                                                                                                                                                                                                                                          <p>Registered Students</p>
-                                                                                                                                                                                                                                                                    </div>
+      <h1>👨‍💼 Admin Dashboard</h1>
 
-                                                                                                                                                                                                                                                                              <div className="dashboard-card">
-                                                                                                                                                                                                                                                                                          📖
-                                                                                                                                                                                                                                                                                                      <h3>{stats.borrowedBooks}</h3>
-                                                                                                                                                                                                                                                                                                                  <p>Currently Borrowed</p>
-                                                                                                                                                                                                                                                                                                                            </div>
+      <p>
+        Manage all borrow requests from students
+        and teachers.
+      </p>
 
-                                                                                                                                                                                                                                                                                                                                      <div className="dashboard-card">
-                                                                                                                                                                                                                                                                                                                                                  🙋
-                                                                                                                                                                                                                                                                                                                                                              <h3>{stats.pendingRequests}</h3>
-                                                                                                                                                                                                                                                                                                                                                                          <p>Pending Requests</p>
-                                                                                                                                                                                                                                                                                                                                                                                    </div>
+      {message && (
+        <div className="info-message">
+          {message}
+        </div>
+      )}
 
-                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                  )}
+      {loading ? (
+        <p>Loading requests...</p>
+      ) : (
+        <div className="requests-list">
 
-                                                                                                                                                                                                                                                                                                                                                                                                      </div>
-                                                                                                                                                                                                                                                                                                                                                                                                        );
-                                                                                                                                                                                                                                                                                                                                                                                                        }
+          {requests.length === 0 && (
+            <p>
+              No borrow requests available.
+            </p>
+          )}
+
+          {requests.map((request) => (
+            <div
+              className="request-card"
+              key={request._id}
+            >
+
+              <h2>
+                {request.resourceTitle ||
+                  "Library Resource"}
+              </h2>
+
+              <p>
+                <strong>User:</strong>{" "}
+                {request.userName}
+              </p>
+
+              <p>
+                <strong>Role:</strong>{" "}
+                {request.userRole}
+              </p>
+
+              <p>
+                <strong>Status:</strong>{" "}
+                {request.status}
+              </p>
+
+              {request.status === "pending" && (
+                <div className="admin-actions">
+
+                  <button
+                    type="button"
+                    className="approve-btn"
+                    onClick={() =>
+                      updateRequest(
+                        request._id,
+                        "approved"
+                      )
+                    }
+                  >
+                    Approve
+                  </button>
+
+                  <button
+                    type="button"
+                    className="reject-btn"
+                    onClick={() =>
+                      updateRequest(
+                        request._id,
+                        "rejected"
+                      )
+                    }
+                  >
+                    Reject
+                  </button>
+
+                </div>
+              )}
+
+            </div>
+          ))}
+
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+export default AdminDashboard;
