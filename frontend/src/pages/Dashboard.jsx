@@ -1,93 +1,84 @@
-import { useAuth } from "../context/AuthContext";
 import { Link } from "react-router-dom";
 
-export default function Dashboard() {
-  const { user } = useAuth();
+function Dashboard() {
+  let user = null;
 
-    return (
-        <div className="dashboard">
+  try {
+    const userData = localStorage.getItem("user");
 
-              <section className="welcome-card">
-                      <div>
-                                <p>WELCOME BACK</p>
+    if (userData) {
+      user = JSON.parse(userData);
+    }
+  } catch {
+    user = null;
+  }
 
-                                          <h1>
-                                                      Hello, {user?.name} 👋
-                                                                </h1>
+  return (
+    <div className="page-container">
 
-                                                                          <span>
-                                                                                      {user?.department} Department
-                                                                                                </span>
-                                                                                                        </div>
+      <section className="dashboard-header">
+        <h1>
+          Welcome, {user?.name || "User"} 👋
+        </h1>
 
-                                                                                                                {user?.photoUrl && (
-                                                                                                                          <img
-                                                                                                                                      src={user.photoUrl}
-                                                                                                                                                  alt="Profile"
-                                                                                                                                                              className="profile-photo"
-                                                                                                                                                                        />
-                                                                                                                                                                                )}
-                                                                                                                                                                                      </section>
+        <p>
+          Welcome to your Smart Library Portal dashboard.
+        </p>
+      </section>
 
-                                                                                                                                                                                            <div className="dashboard-grid">
+      <div className="dashboard-grid">
 
-                                                                                                                                                                                                    <Link
-                                                                                                                                                                                                              to="/departments"
-                                                                                                                                                                                                                        className="dashboard-card"
-                                                                                                                                                                                                                                >
-                                                                                                                                                                                                                                          📚
-                                                                                                                                                                                                                                                    <h3>Departments</h3>
-                                                                                                                                                                                                                                                              <p>
-                                                                                                                                                                                                                                                                          Browse academic resources
-                                                                                                                                                                                                                                                                                    </p>
-                                                                                                                                                                                                                                                                                            </Link>
+        <div className="dashboard-card">
+          <h2>📚 Resources</h2>
 
-                                                                                                                                                                                                                                                                                                    <Link
-                                                                                                                                                                                                                                                                                                              to="/books"
-                                                                                                                                                                                                                                                                                                                        className="dashboard-card"
-                                                                                                                                                                                                                                                                                                                                >
-                                                                                                                                                                                                                                                                                                                                          📖
-                                                                                                                                                                                                                                                                                                                                                    <h3>Books</h3>
-                                                                                                                                                                                                                                                                                                                                                              <p>
-                                                                                                                                                                                                                                                                                                                                                                          Search the library collection
-                                                                                                                                                                                                                                                                                                                                                                                    </p>
-                                                                                                                                                                                                                                                                                                                                                                                            </Link>
+          <p>
+            Browse all available books and library
+            resources.
+          </p>
 
-                                                                                                                                                                                                                                                                                                                                                                                                    <Link
-                                                                                                                                                                                                                                                                                                                                                                                                              to="/my-books"
-                                                                                                                                                                                                                                                                                                                                                                                                                        className="dashboard-card"
-                                                                                                                                                                                                                                                                                                                                                                                                                                >
-                                                                                                                                                                                                                                                                                                                                                                                                                                          📅
-                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h3>My Books</h3>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                              <p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Track due dates
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </Link>
+          <Link
+            to="/resources"
+            className="primary-btn"
+          >
+            View Resources
+          </Link>
+        </div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <Link
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              to="/request-book"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        className="dashboard-card"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                >
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          🙋
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h3>Request Book</h3>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Request a new book
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </Link>
+        <div className="dashboard-card">
+          <h2>📝 Borrow Requests</h2>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <Link
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              to="/library-visit"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        className="dashboard-card"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                >
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          ✍️
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h3>Library Visit</h3>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          Check in or check out
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </Link>
+          <p>
+            Submit a borrow request and track its
+            approval status.
+          </p>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </div>
+          <Link
+            to="/borrow-requests"
+            className="primary-btn"
+          >
+            My Requests
+          </Link>
+        </div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+        <div className="dashboard-card">
+          <h2>👤 Profile</h2>
+
+          <p>
+            View your account and personal details.
+          </p>
+
+          <Link
+            to="/profile"
+            className="primary-btn"
+          >
+            View Profile
+          </Link>
+        </div>
+
+      </div>
+
+    </div>
+  );
+}
+
+export default Dashboard;
