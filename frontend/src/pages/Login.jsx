@@ -1,8 +1,8 @@
 import { useState } from "react";
-import api from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../services/api";
 
-export default function Login() {
+function Login() {
   const navigate = useNavigate();
 
   const [registerNumber, setRegisterNumber] =
@@ -17,54 +17,43 @@ export default function Login() {
   const [loading, setLoading] =
     useState(false);
 
-  const handleLogin = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    setLoading(true);
     setMessage("");
+    setLoading(true);
 
     try {
       const response = await api.post(
-        "/auth/login",
+        "/login",
         {
           registerNumber,
           password
         }
       );
 
-      const data = response.data;
+      localStorage.setItem(
+        "token",
+        response.data.token
+      );
 
-      if (!data.success) {
-        setMessage(
-          data.message || "Login failed"
-        );
-        return;
-      }
+      localStorage.setItem(
+        "user",
+        JSON.stringify(response.data.user)
+      );
 
-      if (data.token) {
-        localStorage.setItem(
-          "token",
-          data.token
-        );
-      }
-
-      if (data.user) {
-        localStorage.setItem(
-          "user",
-          JSON.stringify(data.user)
-        );
-      }
-
-      setMessage("Login successful");
-
-      setTimeout(() => {
+      if (
+        response.data.user.role === "admin"
+      ) {
+        navigate("/admin");
+      } else {
         navigate("/dashboard");
-      }, 800);
+      }
 
     } catch (error) {
       setMessage(
         error.response?.data?.message ||
-        "Invalid Register Number or password"
+        "Login failed."
       );
     } finally {
       setLoading(false);
@@ -73,14 +62,16 @@ export default function Login() {
 
   return (
     <div className="auth-page">
+
       <form
         className="auth-card"
-        onSubmit={handleLogin}
+        onSubmit={handleSubmit}
       >
-        <h2>Welcome Back</h2>
+
+        <h2>Login</h2>
 
         <p>
-          Login to Smart Library Portal
+          Access your Smart Library account
         </p>
 
         {message && (
@@ -89,7 +80,7 @@ export default function Login() {
           </div>
         )}
 
-        <label>Register Number</label>
+        <label>Register Number / Admin ID</label>
 
         <input
           type="text"
@@ -132,7 +123,11 @@ export default function Login() {
             Register
           </Link>
         </p>
+
       </form>
+
     </div>
   );
 }
+
+export default Login;
