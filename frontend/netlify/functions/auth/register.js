@@ -1,5 +1,5 @@
-import { getDB } from "../../../lib/mongodb.js";
-import { hashPassword } from "../../../lib/auth.js";
+import { getDB } from "../lib/mongodb.js";
+import { hashPassword } from "../lib/auth.js";
 
 export default async (request) => {
   if (request.method !== "POST") {
@@ -8,61 +8,81 @@ export default async (request) => {
         success: false,
         message: "Method not allowed"
       },
-      { status: 405 }
+      {
+        status: 405
+      }
     );
   }
 
   try {
-    const data = await request.json();
-
     const {
       name,
       registerNumber,
       idNumber,
       phone,
-      password,
-      role,
       department,
-      photoUrl,
-      bonafideUrl
-    } = data;
+      role,
+      password
+    } = await request.json();
 
     if (
       !name ||
       !registerNumber ||
       !idNumber ||
       !phone ||
-      !password ||
-      !department
+      !department ||
+      !password
     ) {
       return Response.json(
         {
           success: false,
           message: "Please fill all required fields"
         },
-        { status: 400 }
+        {
+          status: 400
+        }
+      );
+    }
+
+    if (
+      role !== "student" &&
+      role !== "teacher"
+    ) {
+      return Response.json(
+        {
+          success: false,
+          message:
+            "Only students and teachers can register"
+        },
+        {
+          status: 400
+        }
       );
     }
 
     const db = await getDB();
 
     const existingUser =
-      await db.collection("users").findOne({
-        $or: [
-          { registerNumber },
-          { idNumber },
-          { phone }
-        ]
-      });
+      await db
+        .collection("users")
+        .findOne({
+          $or: [
+            { registerNumber },
+            { idNumber },
+            { phone }
+          ]
+        });
 
     if (existingUser) {
       return Response.json(
         {
           success: false,
           message:
-            "A user already exists with this Register Number, ID or phone number"
+            "A user already exists with this Register Number, ID Number or phone number"
         },
-        { status: 409 }
+        {
+          status: 409
+        }
       );
     }
 
@@ -74,33 +94,43 @@ export default async (request) => {
       registerNumber,
       idNumber,
       phone,
-      password: hashedPassword,
-      role: role || "student",
       department,
-      photoUrl: photoUrl || "",
-      bonafideUrl: bonafideUrl || "",
+      role,
+      password: hashedPassword,
       createdAt: new Date()
     };
 
     const result =
-      await db.collection("users").insertOne(user);
+      await db
+        .collection("users")
+        .insertOne(user);
 
-    return Response.json({
-      success: true,
-      message: "Registration completed successfully",
-      userId: result.insertedId.toString()
-    });
+    return Response.json(
+      {
+        success: true,
+        message:
+          "Registration completed successfully",
+        userId:
+          result.insertedId.toString()
+      },
+      {
+        status: 201
+      }
+    );
 
   } catch (error) {
-    console.error(error);
+    console.error("Registration error:", error);
 
     return Response.json(
       {
         success: false,
         message:
-          error.message || "Registration failed"
+          error.message ||
+          "Registration failed"
       },
-      { status: 500 }
+      {
+        status: 500
+      }
     );
   }
 };
