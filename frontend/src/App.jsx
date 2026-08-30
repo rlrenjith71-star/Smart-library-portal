@@ -8,6 +8,7 @@ import Resources from "./pages/Resources";
 import BorrowRequests from "./pages/BorrowRequests";
 import Profile from "./pages/Profile";
 import AdminDashboard from "./pages/AdminDashboard";
+import Books from "./pages/Books";
 
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
@@ -81,7 +82,14 @@ function App() {
               </ProtectedRoute>
             }
           />
-
+<Route
+  path="/books"
+  element={
+    <ProtectedRoute>
+      <Books />
+    </ProtectedRoute>
+  }
+/>
         </Routes>
       </main>
 
