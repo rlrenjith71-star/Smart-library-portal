@@ -1,0 +1,21 @@
+export const BookSchema = {
+      title: "string",
+        author: "string",
+          isbn: "string",
+
+            department: "string",
+
+              genre: "string",
+
+                description: "string",
+
+                  coverImage: "string",
+
+                    totalCopies: 0,
+
+                      availableCopies: 0,
+
+                        location: "string",
+
+                          createdAt: new Date()
+};

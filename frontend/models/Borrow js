@@ -1,0 +1,25 @@
+export const BorrowSchema = {
+      userId: "string",
+
+        bookId: "string",
+
+          bookTitle: "string",
+
+            registerNumber: "string",
+
+              borrowDate: new Date(),
+
+                dueDate: new Date(),
+
+                  returnDate: null,
+
+                    status: "borrowed",
+
+                      reminderSent: false,
+
+                        dueTodayReminderSent: false,
+
+                          overdueReminderSent: false,
+
+                            createdAt: new Date()
+};
