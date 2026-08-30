@@ -1,48 +1,72 @@
-import twilio from "twilio";
+import crypto from "crypto";
 
-const accountSid = process.env.TWILIO_ACCOUNT_SID;
-const authToken = process.env.TWILIO_AUTH_TOKEN;
+// Temporary storage for demo OTPs
+const otpStore = new Map();
 
-let client;
-
-if (accountSid && authToken) {
-  client = twilio(accountSid, authToken);
-  }
-
-  export async function sendSMS(to, body) {
-    if (!client) {
-        throw new Error("SMS service is not configured");
+export async function sendSMS(to, body) {
+  console.log(`Demo SMS to ${to}: ${body}`);
+  
+    return {
+        status: "sent"
+          };
           }
-
-            return client.messages.create({
-                body,
-                    from: process.env.TWILIO_PHONE_NUMBER,
-                        to
-                          });
-                          }
-
-                          export async function sendOTP(phone) {
-                            if (!client) {
-                                throw new Error("SMS service is not configured");
-                                  }
-
-                                    return client.verify.v2
-                                        .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-                                            .verifications.create({
-                                                  to: phone,
-                                                        channel: "sms"
-                                                            });
-                                                            }
-
-                                                            export async function verifyOTP(phone, code) {
-                                                              if (!client) {
-                                                                  throw new Error("SMS service is not configured");
-                                                                    }
-
-                                                                      return client.verify.v2
-                                                                          .services(process.env.TWILIO_VERIFY_SERVICE_SID)
-                                                                              .verificationChecks.create({
-                                                                                    to: phone,
-                                                                                          code
-                                                                                              });
-                                                                                              }
+          
+          export async function sendOTP(phone) {
+            // Generate random 6-digit OTP
+              const otp = crypto
+                  .randomInt(100000, 1000000)
+                      .toString();
+                      
+                        // OTP expires after 10 minutes
+                          const expiresAt =
+                              Date.now() + 10 * 60 * 1000;
+                              
+                                // Store OTP temporarily
+                                  otpStore.set(phone, {
+                                      otp,
+                                          expiresAt
+                                            });
+                                            
+                                              console.log(
+                                                  `Demo OTP for ${phone}: ${otp}`
+                                                    );
+                                                    
+                                                      return {
+                                                          status: "pending",
+                                                              otp
+                                                                };
+                                                                }
+                                                                
+                                                                export async function verifyOTP(phone, code) {
+                                                                  const storedData = otpStore.get(phone);
+                                                                  
+                                                                    if (!storedData) {
+                                                                        return {
+                                                                              status: "not_found"
+                                                                                  };
+                                                                                    }
+                                                                                    
+                                                                                      // Check expiry
+                                                                                        if (Date.now() > storedData.expiresAt) {
+                                                                                            otpStore.delete(phone);
+                                                                                            
+                                                                                                return {
+                                                                                                      status: "expired"
+                                                                                                          };
+                                                                                                            }
+                                                                                                            
+                                                                                                              // Check OTP
+                                                                                                                if (storedData.otp !== code) {
+                                                                                                                    return {
+                                                                                                                          status: "denied"
+                                                                                                                              };
+                                                                                                                                }
+                                                                                                                                
+                                                                                                                                  // Remove OTP after successful verification
+                                                                                                                                    otpStore.delete(phone);
+                                                                                                                                    
+                                                                                                                                      return {
+                                                                                                                                          status: "approved"
+                                                                                                                                            };
+                                                                                                                                          }
+                                                                                                                                          
