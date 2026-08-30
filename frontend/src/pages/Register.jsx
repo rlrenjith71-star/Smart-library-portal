@@ -1,77 +1,76 @@
 import { useState } from "react";
-import api from "../services/api";
 import { useNavigate, Link } from "react-router-dom";
+import api from "../services/api";
 
-const departments = [
-  "MBA",
-  "Civil",
-  "ECE",
-  "Mechanical",
-  "Diploma",
-  "AI",
-  "EEE",
-  "MCA"
-];
-
-export default function Register() {
+function Register() {
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     name: "",
     registerNumber: "",
     idNumber: "",
-    phone: "+91",
-    password: "",
-    confirmPassword: "",
+    phone: "",
+    department: "",
     role: "student",
-    department: ""
+    password: "",
+    confirmPassword: ""
   });
 
-  const [message, setMessage] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [message, setMessage] =
+    useState("");
+
+  const [loading, setLoading] =
+    useState(false);
 
   const updateField = (field, value) => {
-    setForm((previous) => ({
-      ...previous,
+    setForm({
+      ...form,
       [field]: value
-    }));
+    });
   };
 
-  const handleRegister = async (event) => {
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    if (form.password !== form.confirmPassword) {
-      setMessage("Passwords do not match");
+    setMessage("");
+
+    if (
+      form.password !==
+      form.confirmPassword
+    ) {
+      setMessage("Passwords do not match.");
       return;
     }
 
     setLoading(true);
-    setMessage("");
 
     try {
-      const response = await api.post("/auth/register", {
-        name: form.name,
-        registerNumber: form.registerNumber,
-        idNumber: form.idNumber,
-        phone: form.phone,
-        password: form.password,
-        role: form.role,
-        department: form.department
-      });
+      const response = await api.post(
+        "/register",
+        {
+          name: form.name,
+          registerNumber: form.registerNumber,
+          idNumber: form.idNumber,
+          phone: form.phone,
+          department: form.department,
+          role: form.role,
+          password: form.password
+        }
+      );
 
       setMessage(
         response.data.message ||
-        "Registration completed successfully"
+        "Registration successful."
       );
 
       setTimeout(() => {
         navigate("/login");
-      }, 1500);
+      }, 1200);
 
     } catch (error) {
       setMessage(
         error.response?.data?.message ||
-        "Registration failed"
+        "Registration failed."
       );
     } finally {
       setLoading(false);
@@ -80,13 +79,17 @@ export default function Register() {
 
   return (
     <div className="auth-page">
+
       <form
-        className="auth-card register-card"
-        onSubmit={handleRegister}
+        className="auth-card"
+        onSubmit={handleSubmit}
       >
+
         <h2>Create Account</h2>
 
-        <p>Register for the Smart Library Portal</p>
+        <p>
+          Register as a Student or Teacher
+        </p>
 
         {message && (
           <div className="info-message">
@@ -95,101 +98,118 @@ export default function Register() {
         )}
 
         <label>Full Name</label>
+
         <input
+          type="text"
           value={form.name}
-          onChange={(e) =>
-            updateField("name", e.target.value)
+          onChange={(event) =>
+            updateField(
+              "name",
+              event.target.value
+            )
           }
           required
         />
 
         <label>Register Number</label>
+
         <input
+          type="text"
           value={form.registerNumber}
-          onChange={(e) =>
+          onChange={(event) =>
             updateField(
               "registerNumber",
-              e.target.value
+              event.target.value
             )
           }
           required
         />
 
-        <label>College ID Number</label>
+        <label>ID Number</label>
+
         <input
+          type="text"
           value={form.idNumber}
-          onChange={(e) =>
-            updateField("idNumber", e.target.value)
+          onChange={(event) =>
+            updateField(
+              "idNumber",
+              event.target.value
+            )
+          }
+          required
+        />
+
+        <label>Phone Number</label>
+
+        <input
+          type="tel"
+          value={form.phone}
+          onChange={(event) =>
+            updateField(
+              "phone",
+              event.target.value
+            )
+          }
+          required
+        />
+
+        <label>Department</label>
+
+        <input
+          type="text"
+          value={form.department}
+          onChange={(event) =>
+            updateField(
+              "department",
+              event.target.value
+            )
           }
           required
         />
 
         <label>User Type</label>
+
         <select
           value={form.role}
-          onChange={(e) =>
-            updateField("role", e.target.value)
-          }
-        >
-          <option value="student">Student</option>
-          <option value="staff">Staff</option>
-        </select>
-
-        <label>Department</label>
-        <select
-          value={form.department}
-          onChange={(e) =>
+          onChange={(event) =>
             updateField(
-              "department",
-              e.target.value
+              "role",
+              event.target.value
             )
           }
-          required
         >
-          <option value="">
-            Select Department
+          <option value="student">
+            Student
           </option>
 
-          {departments.map((department) => (
-            <option
-              key={department}
-              value={department}
-            >
-              {department}
-            </option>
-          ))}
+          <option value="teacher">
+            Teacher
+          </option>
         </select>
 
-        <label>Phone Number</label>
-        <input
-          value={form.phone}
-          onChange={(e) =>
-            updateField("phone", e.target.value)
-          }
-          required
-        />
-
         <label>Password</label>
+
         <input
           type="password"
           value={form.password}
-          onChange={(e) =>
+          onChange={(event) =>
             updateField(
               "password",
-              e.target.value
+              event.target.value
             )
           }
           required
         />
 
         <label>Confirm Password</label>
+
         <input
           type="password"
           value={form.confirmPassword}
-          onChange={(e) =>
+          onChange={(event) =>
             updateField(
               "confirmPassword",
-              e.target.value
+              event.target.value
             )
           }
           required
@@ -201,17 +221,22 @@ export default function Register() {
           disabled={loading}
         >
           {loading
-            ? "Please wait..."
-            : "Complete Registration"}
+            ? "Registering..."
+            : "Register"}
         </button>
 
         <p className="auth-footer">
-          Already registered?{" "}
+          Already have an account?{" "}
+
           <Link to="/login">
             Login
           </Link>
         </p>
+
       </form>
+
     </div>
   );
 }
+
+export default Register;
