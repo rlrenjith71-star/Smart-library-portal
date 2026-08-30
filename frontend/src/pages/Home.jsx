@@ -1,85 +1,80 @@
 import { Link } from "react-router-dom";
-import {
-  BookOpen,
-    Building2,
-      Bell,
-        Clock
-        } from "lucide-react";
 
-        export default function Home() {
-          return (
-              <div className="home-page">
+function Home() {
+  return (
+    <div className="home-page">
 
-                    <section className="hero">
-                            <div>
-                                      <p className="hero-tag">
-                                                  DIGITAL COLLEGE LIBRARY
-                                                            </p>
+      <section className="hero">
 
-                                                                      <h1>
-                                                                                  Smart Library
-                                                                                              <span> Management Portal</span>
-                                                                                                        </h1>
+        <div className="hero-content">
+          <h1>
+            Welcome to Smart Library Portal
+          </h1>
 
-                                                                                                                  <p className="hero-text">
-                                                                                                                              Search books, access academic resources,
-                                                                                                                                          manage borrowing, track due dates and
-                                                                                                                                                      receive reminders.
-                                                                                                                                                                </p>
+          <p>
+            A simple and efficient platform for students,
+            teachers, and administrators to manage library
+            resources and borrowing requests.
+          </p>
 
-                                                                                                                                                                          <div className="hero-buttons">
-                                                                                                                                                                                      <Link to="/register" className="primary-btn">
-                                                                                                                                                                                                    Get Started
-                                                                                                                                                                                                                </Link>
+          <div className="hero-buttons">
+            <Link
+              to="/register"
+              className="primary-btn"
+            >
+              Get Started
+            </Link>
 
-                                                                                                                                                                                                                            <Link to="/login" className="secondary-btn">
-                                                                                                                                                                                                                                          Login
-                                                                                                                                                                                                                                                      </Link>
-                                                                                                                                                                                                                                                                </div>
-                                                                                                                                                                                                                                                                        </div>
+            <Link
+              to="/login"
+              className="secondary-btn"
+            >
+              Login
+            </Link>
+          </div>
+        </div>
 
-                                                                                                                                                                                                                                                                                <div className="hero-icon">
-                                                                                                                                                                                                                                                                                          <BookOpen size={150} />
-                                                                                                                                                                                                                                                                                                  </div>
-                                                                                                                                                                                                                                                                                                        </section>
+      </section>
 
-                                                                                                                                                                                                                                                                                                              <section className="features">
+      <section className="features">
 
-                                                                                                                                                                                                                                                                                                                      <div className="feature-card">
-                                                                                                                                                                                                                                                                                                                                <BookOpen size={32} />
-                                                                                                                                                                                                                                                                                                                                          <h3>Digital Resources</h3>
-                                                                                                                                                                                                                                                                                                                                                    <p>
-                                                                                                                                                                                                                                                                                                                                                                Books, thesis, projects,
-                                                                                                                                                                                                                                                                                                                                                                            records and journals.
-                                                                                                                                                                                                                                                                                                                                                                                      </p>
-                                                                                                                                                                                                                                                                                                                                                                                              </div>
+        <h2>What You Can Do</h2>
 
-                                                                                                                                                                                                                                                                                                                                                                                                      <div className="feature-card">
-                                                                                                                                                                                                                                                                                                                                                                                                                <Building2 size={32} />
-                                                                                                                                                                                                                                                                                                                                                                                                                          <h3>Departments</h3>
-                                                                                                                                                                                                                                                                                                                                                                                                                                    <p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                Resources organized department-wise.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                          </p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </div>
+        <div className="feature-grid">
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <div className="feature-card">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <Clock size={32} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <h3>Borrow Tracking</h3>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    Track borrowed books and due dates.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
+          <div className="feature-card">
+            <h3>📚 Browse Resources</h3>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <div className="feature-card">
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        <Bell size={32} />
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <h3>SMS Reminder</h3>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        Get notified before your due date.
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  </p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
+            <p>
+              Search and explore available library books
+              and resources easily.
+            </p>
+          </div>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </section>
+          <div className="feature-card">
+            <h3>📝 Borrow Requests</h3>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      }
+            <p>
+              Students and teachers can submit requests
+              to borrow library resources.
+            </p>
+          </div>
+
+          <div className="feature-card">
+            <h3>👨‍💼 Admin Management</h3>
+
+            <p>
+              Administrators can manage resources and
+              approve or reject borrow requests.
+            </p>
+          </div>
+
+        </div>
+
+      </section>
+
+    </div>
+  );
+}
+
+export default Home;
