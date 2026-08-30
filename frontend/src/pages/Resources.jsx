@@ -1,131 +1,137 @@
 import { useEffect, useState } from "react";
-import { useSearchParams } from "react-router-dom";
 import api from "../services/api";
 
-const resourceTypes = [
-  "books",
-    "thesis",
-      "mini-project",
-        "major-project",
-          "record",
-            "journal"
-            ];
+function Resources() {
+  const [resources, setResources] =
+    useState([]);
 
-            export default function Resources() {
-              const [searchParams] = useSearchParams();
+  const [search, setSearch] =
+    useState("");
 
-                const department = searchParams.get("department") || "";
+  const [loading, setLoading] =
+    useState(true);
 
-                  const [resources, setResources] = useState([]);
-                    const [type, setType] = useState("");
-                      const [loading, setLoading] = useState(true);
+  const [message, setMessage] =
+    useState("");
 
-                        useEffect(() => {
-                            async function fetchResources() {
-                                  setLoading(true);
+  useEffect(() => {
+    loadResources();
+  }, []);
 
-                                        try {
-                                                const response = await api.get(
-                                                          "/resources/get-resources",
-                                                                    {
-                                                                                params: {
-                                                                                              department: department,
-                                                                                                            type: type
-                                                                                                                        }
-                                                                                                                                  }
-                                                                                                                                          );
+  const loadResources = async () => {
+    try {
+      setLoading(true);
 
-                                                                                                                                                  setResources(response.data.resources || []);
-                                                                                                                                                        } catch (error) {
-                                                                                                                                                                console.error("Error loading resources:", error);
-                                                                                                                                                                        setResources([]);
-                                                                                                                                                                              } finally {
-                                                                                                                                                                                      setLoading(false);
-                                                                                                                                                                                            }
-                                                                                                                                                                                                }
+      const response =
+        await api.get("/resources");
 
-                                                                                                                                                                                                    fetchResources();
-                                                                                                                                                                                                      }, [department, type]);
+      setResources(
+        response.data.resources || []
+      );
 
-                                                                                                                                                                                                        return (
-                                                                                                                                                                                                            <div className="page-container">
+    } catch (error) {
+      setMessage(
+        error.response?.data?.message ||
+        "Unable to load resources."
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                                                                                                                                                                                                                  <h1 className="page-title">
-                                                                                                                                                                                                                          {department
-                                                                                                                                                                                                                                    ? `${department} Resources`
-                                                                                                                                                                                                                                              : "Academic Resources"}
-                                                                                                                                                                                                                                                    </h1>
+  const filteredResources =
+    resources.filter((resource) => {
+      const searchText =
+        search.toLowerCase();
 
-                                                                                                                                                                                                                                                          <div className="filters">
-                                                                                                                                                                                                                                                                  <select
-                                                                                                                                                                                                                                                                            value={type}
-                                                                                                                                                                                                                                                                                      onChange={(e) => setType(e.target.value)}
-                                                                                                                                                                                                                                                                                              >
-                                                                                                                                                                                                                                                                                                        <option value="">All Resources</option>
+      return (
+        resource.title
+          ?.toLowerCase()
+          .includes(searchText) ||
 
-                                                                                                                                                                                                                                                                                                                  {resourceTypes.map((item) => (
-                                                                                                                                                                                                                                                                                                                              <option key={item} value={item}>
-                                                                                                                                                                                                                                                                                                                                            {item}
-                                                                                                                                                                                                                                                                                                                                                        </option>
-                                                                                                                                                                                                                                                                                                                                                                  ))}
-                                                                                                                                                                                                                                                                                                                                                                          </select>
-                                                                                                                                                                                                                                                                                                                                                                                </div>
+        resource.author
+          ?.toLowerCase()
+          .includes(searchText) ||
 
-                                                                                                                                                                                                                                                                                                                                                                                      {loading && <p>Loading resources...</p>}
+        resource.category
+          ?.toLowerCase()
+          .includes(searchText)
+      );
+    });
 
-                                                                                                                                                                                                                                                                                                                                                                                            {!loading && resources.length === 0 && (
-                                                                                                                                                                                                                                                                                                                                                                                                    <p>No resources available.</p>
-                                                                                                                                                                                                                                                                                                                                                                                                          )}
+  return (
+    <div className="page-container">
 
-                                                                                                                                                                                                                                                                                                                                                                                                                {!loading && resources.length > 0 && (
-                                                                                                                                                                                                                                                                                                                                                                                                                        <div className="resources-grid">
+      <h1>📚 Library Resources</h1>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                  {resources.map((resource) => (
-                                                                                                                                                                                                                                                                                                                                                                                                                                              <div
-                                                                                                                                                                                                                                                                                                                                                                                                                                                            className="resource-card"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                          key={resource._id}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      >
+      <p>
+        Browse and search available library resources.
+      </p>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    <h3>{resource.title}</h3>
+      <input
+        className="search-input"
+        type="text"
+        placeholder="Search by title, author or category"
+        value={search}
+        onChange={(event) =>
+          setSearch(event.target.value)
+        }
+      />
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  <strong>Type:</strong>{" "}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  {resource.type}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </p>
+      {message && (
+        <div className="info-message">
+          {message}
+        </div>
+      )}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              <strong>Department:</strong>{" "}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              {resource.department}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </p>
+      {loading ? (
+        <p>Loading resources...</p>
+      ) : (
+        <div className="resource-grid">
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          {resource.author && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            <strong>Author:</strong>{" "}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              {resource.author}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              </p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            )}
+          {filteredResources.length === 0 && (
+            <p>
+              No resources found.
+            </p>
+          )}
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          {resource.description && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          <p>{resource.description}</p>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        )}
+          {filteredResources.map(
+            (resource) => (
+              <div
+                className="resource-card"
+                key={resource._id}
+              >
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      {resource.fileUrl && (
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      <a
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        href={resource.fileUrl}
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          target="_blank"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            rel="noreferrer"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              className="primary-btn"
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              >
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                Open Resource
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                </a>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                              )}
+                <h2>
+                  {resource.title}
+                </h2>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    ))}
+                <p>
+                  <strong>Author:</strong>{" "}
+                  {resource.author || "Not available"}
+                </p>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                            </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  )}
+                <p>
+                  <strong>Category:</strong>{" "}
+                  {resource.category || "General"}
+                </p>
 
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      </div>
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        );
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                        }
+                <p>
+                  <strong>Available:</strong>{" "}
+                  {resource.available
+                    ? "Yes"
+                    : "No"}
+                </p>
+
+              </div>
+            )
+          )}
+
+        </div>
+      )}
+
+    </div>
+  );
+}
+
+export default Resources;
